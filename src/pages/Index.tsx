@@ -1,12 +1,42 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect, useRef } from 'react';
 
 const Index = () => {
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const image = imageRef.current;
+    if (!image) return;
+
+    let startTime: number | null = null;
+    const duration = 8000;
+    const amplitude = 30;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = (elapsed % duration) / duration;
+      
+      const y = Math.sin(progress * Math.PI * 2) * amplitude;
+      
+      image.style.transform = `translateY(${y}px)`;
+      
+      requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="w-screen h-screen overflow-hidden bg-black flex items-center justify-center">
+      <img
+        ref={imageRef}
+        src="https://cdn.poehali.dev/files/e3555fdc-b9f2-425c-9853-6f4613cb226f.png"
+        alt="Floating artwork"
+        className="max-w-full max-h-full object-contain will-change-transform"
+        style={{
+          transition: 'transform 0.1s linear'
+        }}
+      />
     </div>
   );
 };
