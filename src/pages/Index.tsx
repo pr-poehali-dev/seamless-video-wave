@@ -13,7 +13,7 @@ const Index = () => {
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.src = 'https://cdn.poehali.dev/files/589e2078-c5dc-491c-982b-a8b962ed023f.png';
+    img.src = 'https://cdn.poehali.dev/files/b2440fc2-89f1-40f9-8aba-ee00ca4f0875.png';
 
     img.onload = () => {
       canvas.width = img.width;
@@ -28,17 +28,16 @@ const Index = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
 
-        const breathingCycle = (elapsed % 4000) / 4000;
-        const breathScale = 1 + Math.sin(breathingCycle * Math.PI * 2) * 0.008;
+        const swayCycle = (elapsed % 14000) / 14000;
+        const easeProgress = -(Math.cos(Math.PI * swayCycle) - 1) / 2;
+        
+        const swayAngle = (easeProgress - 0.5) * 0.015;
+        const swayX = Math.sin(swayCycle * Math.PI * 2) * 8;
+        const swayY = Math.sin(swayCycle * Math.PI * 2) * 4;
 
-        const floatCycle = (elapsed % 8000) / 8000;
-        const floatY = Math.sin(floatCycle * Math.PI * 2) * 3;
-
-        const swayX = Math.sin((elapsed % 10000) / 10000 * Math.PI * 2) * 2;
-
-        ctx.translate(canvas.width / 2, canvas.height / 2 + floatY);
-        ctx.scale(breathScale, breathScale);
-        ctx.translate(-canvas.width / 2 + swayX, -canvas.height / 2);
+        ctx.translate(canvas.width / 2 + swayX, canvas.height / 2 + swayY);
+        ctx.rotate(swayAngle);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
         ctx.drawImage(img, 0, 0);
 
