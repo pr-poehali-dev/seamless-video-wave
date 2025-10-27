@@ -1,44 +1,59 @@
 import { useEffect, useRef } from 'react';
 
 const Index = () => {
-  const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const image = imageRef.current;
-    if (!image) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    let startTime: number | null = null;
-    const duration = 12000;
-    const amplitude = 25;
+    const canvas = container.querySelector('canvas') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const easeInOutSine = (x: number): number => {
-      return -(Math.cos(Math.PI * x) - 1) / 2;
-    };
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = 'https://cdn.poehali.dev/files/589e2078-c5dc-491c-982b-a8b962ed023f.png';
 
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = (elapsed % duration) / duration;
-      
-      const easedProgress = easeInOutSine(progress);
-      const y = (easedProgress - 0.5) * amplitude * 2;
-      
-      image.style.transform = `translateY(${y}px)`;
-      
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      let startTime: number | null = null;
+
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+
+        const breathingCycle = (elapsed % 4000) / 4000;
+        const breathScale = 1 + Math.sin(breathingCycle * Math.PI * 2) * 0.008;
+
+        const floatCycle = (elapsed % 8000) / 8000;
+        const floatY = Math.sin(floatCycle * Math.PI * 2) * 3;
+
+        const swayX = Math.sin((elapsed % 10000) / 10000 * Math.PI * 2) * 2;
+
+        ctx.translate(canvas.width / 2, canvas.height / 2 + floatY);
+        ctx.scale(breathScale, breathScale);
+        ctx.translate(-canvas.width / 2 + swayX, -canvas.height / 2);
+
+        ctx.drawImage(img, 0, 0);
+
+        ctx.restore();
+
+        requestAnimationFrame(animate);
+      };
+
       requestAnimationFrame(animate);
     };
-
-    requestAnimationFrame(animate);
   }, []);
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-black flex items-center justify-center">
-      <img
-        ref={imageRef}
-        src="https://cdn.poehali.dev/files/589e2078-c5dc-491c-982b-a8b962ed023f.png"
-        alt="Floating artwork"
-        className="max-w-full max-h-full object-contain will-change-transform"
-      />
+    <div className="w-screen h-screen overflow-hidden bg-black flex items-center justify-center" ref={containerRef}>
+      <canvas className="max-w-full max-h-full object-contain" />
     </div>
   );
 };
